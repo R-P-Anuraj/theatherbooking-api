@@ -47,6 +47,8 @@ export const  getScreenController=async(req:Request<{},{},IScreen>)=>{
 export const getActiveShowController=async(req:Request<{},{},IShow>)=>{
     try {
         const Data=req.body;
+        const userId=(req as any).user._id
+        Data.userId=userId
         const result=await getActiveShows(Data);
         return {
             statusCode:statusCode.OK,

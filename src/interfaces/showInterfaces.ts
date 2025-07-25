@@ -11,4 +11,5 @@ export interface IShow {
   showEndDate: Date;
   theaterId: Types.ObjectId;
   getShowtime:[string]
+  userId:Types.ObjectId;
 }

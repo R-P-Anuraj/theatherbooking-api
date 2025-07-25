@@ -66,7 +66,7 @@ export const getActiveShows = async (Data: IShow) => {
       {
     $group: {
       _id: "$movieId",//movie id
-      // movieId: { $first: "$movieId" },
+       movieId: { $first: "$movieId" },
       movieName: { $first: "$movieName" },
       language: { $first: "$language" },
       genre: { $first: "$genre" },
@@ -88,6 +88,9 @@ export const getScreenDetials = async (Data: IShow) => {
   try {
     const {movieId}=Data
     if(!movieId) throw new Error("movieId is required")
+      const mov=await showModel.find({movieId})
+    console.log(mov,"mov");
+    
     const result=await showModel.aggregate([
       {
         $match: {
@@ -113,16 +116,17 @@ export const getScreenDetials = async (Data: IShow) => {
           descripition: "$screeninfo.description",
           _id:1
         },
-      },{
-        $group: {
-          _id: "$screenId",
-          screenNum: { $first: "$screenNum" },
-          descripition: { $first: "$descripition" },
-          showtimes: { $push: "$showtime" },
-          showId: { $first: "$_id" },
-        }
-      }
-    ])
+      },
+      // {
+      //   $group: {
+      //     _id: "$screenId",
+      //     screenNum: { $first: "$screenNum" },
+      //     descripition: { $first: "$descripition" },
+      //     showtimes: { $push: "$showtime" },
+      //     showId: { $push: "$_id" },
+      //   }
+      // }
+    ]).sort({screenNum:1}).exec();
     if(result.length==0) throw new Error("No shows found")
     return result;
   } catch (error: any) {
@@ -146,25 +150,23 @@ export const bookTicket = async (Data: IBook) => {
   try {
     console.log(Data);
     const {seats,showId,userId,BookedDate}=Data
-    const error=[]
-    for(let i=0;i<seats.length;i++){
-      const seat=seats[i]
-      const book=await bookModel.find({seatId:seat})
-      if(book!=null){
-        error.push({seatId:seat})
-      }
-    }
-    if(error.length>0){
-      throw new Error(`${JSON.stringify(error)} this seats is already booked`)
-    }
+    // const error=[]
+    // for(let i=0;i<seats.length;i++){
+    //   const seat=seats[i]
+    //   const book=await bookModel.find({seatId:seat})
+    //   if(book!=null){
+    //     error.push({seatId:seat})
+    //   }
+    // }
+    // if(error.length>0){
+    //   throw new Error(`${JSON.stringify(error)} this seats is already booked`)
+    // }
     for(let i=0;i<seats.length;i++){
       const seat=seats[i]
       await bookModel.create({seatId:seat,showId,userId,BookedDate})
     }
-    
-    return {
-      message:'Booked Successfully'
-    };
+    const result=await bookModel.find({showId,userId,BookedDate})
+    return result
     
   } catch (error: any) {
     throw error;
