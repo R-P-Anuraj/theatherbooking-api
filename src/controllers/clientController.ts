@@ -47,8 +47,6 @@ export const  getScreenController=async(req:Request<{},{},IScreen>)=>{
 export const getActiveShowController=async(req:Request<{},{},IShow>)=>{
     try {
         const Data=req.body;
-        const userId=(req as any).user._id
-        Data.userId=userId
         const result=await getActiveShows(Data);
         return {
             statusCode:statusCode.OK,
@@ -105,6 +103,7 @@ export const fetchSeatController=async(req:Request<{},{},CreateSeatRequest>)=>{
 export const bookTicketController=async(req:Request<{},{},IBook>)=>{
   try{
     const Data=req.body;
+    Data.userId=(req as any).user.id
     const result=await bookTicket(Data);
     return {
       statusCode: statusCode.OK,

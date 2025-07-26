@@ -13,8 +13,8 @@ export const authUser=async(req:Request,res:Response,next:NextFunction)=>{
        
         (req as any).user=decoded;
         next();
-    }catch(error){
-        return res.status(401).json({message:"Unauthorized2"});
+    }catch(error : any){
+        return res.status(401).json({message:error.message});
     }
 }
 

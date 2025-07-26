@@ -9,6 +9,7 @@ export interface IBook{
     status: "active" | "inactive";
     BookedDate: Date;
     _id: Types.ObjectId
+    showTime: string
     _v: number
     seats:[Types.ObjectId]
 }

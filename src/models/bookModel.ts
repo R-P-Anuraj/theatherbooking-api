@@ -3,7 +3,7 @@ import { IBook } from "../interfaces/bookInterface";
 const bookSchema = new mongoose.Schema<IBook>({
     userId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"user"
+        ref:"user",
     },
     showId:{
         type:mongoose.Schema.Types.ObjectId,
