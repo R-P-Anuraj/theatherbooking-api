@@ -6,7 +6,8 @@ import {
   getActiveShowController,
   getScreenDetailsController,
   fetchSeatController,
-  bookTicketController
+  bookTicketController,
+  getBookedOrUnBookedSeatsController
 } from "../controllers/clientController";
 import { authUser, authorizeRoles } from "../middlewares/userMiddleware";
 const router = express.Router();
@@ -52,6 +53,13 @@ router.post(
   authUser,
   authorizeRoles(["client"]),
   response(bookTicketController)
+);
+
+router.get(
+  "/bookedSeats",
+  authUser,
+  authorizeRoles(["client"]),
+  response(getBookedOrUnBookedSeatsController)
 );
 
 export default router;

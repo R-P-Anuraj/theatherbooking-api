@@ -18,6 +18,8 @@ export interface CreateSeatRequest {
   platinum: number;
   recliner: number; 
   price: SeatConfigP;
+  // showId:Types.ObjectId;
+  // BookedDate:Date
 }
 // export interface SeatTypeCongig{
 
@@ -27,4 +29,12 @@ export interface SeatConfigP {
   goldP: number;
   platinumP: number;
   reclinerP: number;
+}
+
+export interface ISeat {
+  screenId: Types.ObjectId;
+  seatNumber: number;
+  seatType: "sliver" | "gold" | "platinum" | "recliner";
+  price: number;
+  booked: boolean;
 }

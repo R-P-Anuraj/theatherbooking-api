@@ -5,11 +5,10 @@ import { IShow } from "../interfaces/showInterfaces";
 import { showModel } from "../models/showModel";
 import { CreateSeatRequest } from "../interfaces/seatInterface";
 import { seatModel } from "../models/seatModel";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { IBook } from "../interfaces/bookInterface";
 import { bookModel } from "../models/bookModel";
-import { stat } from "fs";
-import { log } from "console";
+import { Types } from "mongoose";
 export const getAllTheater = () => {
   try {
     const result = theaterModel.find({});
@@ -142,15 +141,122 @@ export const getScreenDetials = async (Data: IShow) => {
 
 export const seatFetchByScreenId = async (Data: CreateSeatRequest) => {
   try {
-    const result = await seatModel.find({ screenId: Data.screenId });
-    if (result.length == 0) throw new Error("No seats found");
-    return result;
+    const seats = await seatModel.find({ screenId: Data.screenId });
+    if (seats.length == 0) throw new Error("No seats found");
+    return seats;
   } catch (error: any) {
     throw error;
   }
 };
 
+// export const fetchSeats = async (Data: any) => {
+//   try {
+//     const bookedSeats = await bookModel.find({
+//       showId: Data.showId,
+//       BookedDate: Data.BookedDate,
+//     });
+//     const Books: any = [];
+//     for (let i = 0; i < bookedSeats.length; i++) {
+//       Books.push(bookedSeats[i].seatId);
+//     }
+//     // const seats = await seatModel.find({ screenId: Data.screenId });
+//     const seats = await seatModel.aggregate([{
+//   $match: {
+//   	 screenId: new mongoose.Types.ObjectId(Data.screenId)
+//   }
+// },
+//  {
+//   $lookup: {
+//     from: "screens",
+//     localField: "screenId",
+//     foreignField: "_id",
+//     as: "screen"
+//   }
+// },{
+//    $unwind:"$screen"
+// },
+//  {
+//    $project: {
+//      _id:1,
+//      seatNumber:1,
+//      seatType:1,
+//      price:1,
+//      screenNum:"$screen.screen_num",
+//      screen_descripition:"$screen.description" 
+//    }
+//  }
+// ])
+//     if (seats.length == 0) throw new Error("No seats found");
+//     // const unBookedSeats=seats.filter(seat=>
+//     //   !Books.some((bookId : ObjectId)=>bookId.equals(seat._id))
+//     // )
+//     const unBookedSeats = seats.filter(
+//       (seat) =>
+//         !Books.some(
+//           (bookId: ObjectId) => bookId.toString() === seat._id.toString()
+//         )
+//     );
+//     console.log(unBookedSeats);
+//     const availableSeats = unBookedSeats
+    
 
+//     if (bookedSeats.length == 0) throw new Error("No seats found");
+//     return { bookedSeats, Books, availableSeats };
+//   } catch (error: any) {
+//     throw error;
+//   }
+// };
+export const fetchSeats = async (data: any) => {
+  try {
+    const bookedSeats = await bookModel.find({
+      showId: data.showId,
+      BookedDate: data.BookedDate,
+    });
+
+    const bookedSeatIds = bookedSeats.map((seat) => seat.seatId.toString());
+
+    const seats = await seatModel.aggregate([
+      {
+        $match: {
+          screenId: new mongoose.Types.ObjectId(data.screenId),
+        },
+      },
+      {
+        $lookup: {
+          from: "screens",
+          localField: "screenId",
+          foreignField: "_id",
+          as: "screen",
+        },
+      },
+      {
+        $unwind: "$screen",
+      },
+      {
+        $project: {
+          _id: 1,
+          seatNumber: 1,
+          seatType: 1,
+          price: 1,
+          screenNum: "$screen.screen_num",
+          screenDescription: "$screen.description",
+        },
+      },
+    ]);
+
+    if (seats.length === 0) {
+      throw new Error("No seats found");
+    }
+
+    const availableSeats = seats.filter((seat) => !bookedSeatIds.includes(seat._id.toString()));
+
+    console.log(availableSeats);
+
+    return { bookedSeats, availableSeats };
+  } catch (error: any) {
+    throw error;
+  }
+};
 
 export const bookTicket = async (Data: IBook) => {
   try {
@@ -173,7 +279,7 @@ export const bookTicket = async (Data: IBook) => {
       await bookModel.create({ seatId: seats[i], showId, userId, BookedDate });
     }
     // const result = await bookModel.find({ showId, userId, BookedDate });
-    const result= await bookModel.aggregate([
+    const result = await bookModel.aggregate([
       {
         $match: {
           showId: new mongoose.Types.ObjectId(showId),
@@ -229,6 +335,7 @@ export const bookTicket = async (Data: IBook) => {
       {
         $project: {
           _id: 1,
+          BookedDate: 1,
           moviename: "$movie.moviename",
           movie_description: "$movie.description",
           duration: "$movie.duration",
@@ -245,6 +352,8 @@ export const bookTicket = async (Data: IBook) => {
       {
         $group: {
           _id: 1,
+          BookedId: { $push: "$_id" },
+          BookedDate: { $first: "$BookedDate" },
           movie: { $first: "$moviename" },
           movie_description: { $first: "$movie_description" },
           duration: { $first: "$duration" },
