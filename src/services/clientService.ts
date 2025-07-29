@@ -261,6 +261,19 @@ export const fetchSeats = async (data: any) => {
 export const bookTicket = async (Data: IBook) => {
   try {
     const { seats, showId, userId, BookedDate } = Data;
+    const BookedDated=new Date(Data.BookedDate)
+     const currentDate = new Date();
+    const threeDaysBefore = new Date(currentDate.getTime() - 3 * 24 * 60 * 60 * 1000);
+    const show = await showModel.findById(showId);
+    if (!show) throw new Error("Show not found");
+    const showEndDate=show.showEndDate
+    const showStartDated=new Date(showEndDate)
+    if(showStartDated<BookedDated){
+      throw new Error("Booking date is not within the allowed range (current date or within 3 days before)");
+    }
+    if (BookedDated < threeDaysBefore || BookedDated > currentDate) {
+      throw new Error("Booking date is not within the allowed range (current date or within 3 days before)");
+    }
     var error = [];
     for (let i = 0; i < seats.length; i++) {
       const check = await bookModel.find({
@@ -278,7 +291,7 @@ export const bookTicket = async (Data: IBook) => {
     for (let i = 0; i < seats.length; i++) {
       await bookModel.create({ seatId: seats[i], showId, userId, BookedDate });
     }
-    // const result = await bookModel.find({ showId, userId, BookedDate });
+    
     const result = await bookModel.aggregate([
       {
         $match: {

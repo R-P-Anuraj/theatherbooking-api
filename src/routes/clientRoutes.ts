@@ -41,12 +41,12 @@ router.get(
   response(getScreenDetailsController)
 );
 
-router.get(
-  "/seats",
-  authUser,
-  authorizeRoles(["client"]),
-  response(fetchSeatController)
-);
+// router.get(
+//   "/seats",
+//   authUser,
+//   authorizeRoles(["client"]),
+//   response(fetchSeatController)
+// );
 
 router.post(
   "/bookTicket",
