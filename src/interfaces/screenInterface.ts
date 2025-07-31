@@ -9,4 +9,5 @@ export interface IScreen {
   _id: Types.ObjectId;
   status: "active" | "inactive";
   __v: number;
+  screenId: Types.ObjectId;
 }

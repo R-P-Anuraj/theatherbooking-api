@@ -12,4 +12,5 @@ export interface IMovie {
     language:string;
     status: "active" | "inactive";
     theaterId: Types.ObjectId
+    movieId: Types.ObjectId
 }

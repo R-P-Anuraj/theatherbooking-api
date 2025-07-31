@@ -7,7 +7,7 @@ import {
   getScreenDetailsController,
   fetchSeatController,
   bookTicketController,
-  getBookedOrUnBookedSeatsController
+  getBookedOrUnBookedSeatsController,getBookedShowController
 } from "../controllers/clientController";
 import { authUser, authorizeRoles } from "../middlewares/userMiddleware";
 const router = express.Router();
@@ -60,6 +60,12 @@ router.get(
   authUser,
   authorizeRoles(["client"]),
   response(getBookedOrUnBookedSeatsController)
+);
+router.get(
+  "/bookedShow",
+  authUser,
+  authorizeRoles(["client"]),
+  response(getBookedShowController)
 );
 
 export default router;

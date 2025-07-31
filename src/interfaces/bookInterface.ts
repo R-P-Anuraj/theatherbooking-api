@@ -12,4 +12,13 @@ export interface IBook{
     showTime: string
     _v: number
     seats:[Types.ObjectId]
+    ticketToken:string;
+    used:boolean
+    booking_id:string
+    ticketId:string
+}
+
+export enum Modifier{
+    AM="am",
+    PM="pm"
 }

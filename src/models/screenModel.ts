@@ -28,4 +28,4 @@ const screenSchema = new mongoose.Schema<IScreen>({
         default:"active"
     }
 });
-export const screenModel = mongoose.model<IScreen>("screen", screenSchema);
+export const screenModel = mongoose.model<IScreen>("Screen", screenSchema);

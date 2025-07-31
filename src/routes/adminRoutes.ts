@@ -12,6 +12,11 @@ import {
   getMovieController,
   createShowController,
   getActiveShowController,
+  changeScreenStatusController,
+  changeShowStatusChontroller,
+  changeMovieStatusController,
+  verifyTokenController,
+  reportController
 } from "../controllers/adminController";
 import { theaterV, screenV, seatV, movieV, showV } from "../validators";
 // import { ShowTValidators } from "../validators/adminValidator";
@@ -79,7 +84,7 @@ router.get(
 //create show movieId,screenId,showtime
 router.post(
   "/createShow",
-   showV.showCreateValidator,
+  showV.showCreateValidator,
   authUser,
   authorizeRoles(["admin"]),
   response(createShowController)
@@ -90,4 +95,41 @@ router.get(
   authorizeRoles(["admin"]),
   response(getActiveShowController)
 );
+router.put(
+  "/changeScreenstatus",
+  authUser,
+  authorizeRoles(["admin"]),
+  response(changeScreenStatusController)
+);
+router.put(
+  "/changeshowstatus",
+  authUser,
+  authorizeRoles(["admin"]),
+  response(changeShowStatusChontroller)
+);
+router.put(
+  "/changemoviestatus",
+  authUser,
+  authorizeRoles(["admin"]),
+  response(changeMovieStatusController)
+);
+router.post(
+  "/verifyToken",
+  authUser,
+  authorizeRoles(["admin"]),
+  response(verifyTokenController)
+);
+
+router.get(
+  "/report",
+  authUser,
+  authorizeRoles(["admin"]),
+  response(reportController)
+);
+// router.get(
+//   "/report",
+//   authUser,
+//   authorizeRoles(["admin"]),
+//   response(reportController)
+// );
 export default router;

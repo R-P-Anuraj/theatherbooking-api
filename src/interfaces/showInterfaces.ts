@@ -12,4 +12,5 @@ export interface IShow {
   theaterId: Types.ObjectId;
   getShowtime:[string]
   userId:Types.ObjectId;
+  showId:Types.ObjectId
 }

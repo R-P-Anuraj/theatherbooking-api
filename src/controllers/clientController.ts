@@ -8,7 +8,8 @@ import {
   getScreenDetials,
   seatFetchByScreenId,
   bookTicket,
-  fetchSeats
+  fetchSeats,
+  getBookedShow
 } from "../services/clientService";
 import { Request } from "express";
 import { CreateSeatRequest } from "../interfaces/seatInterface";
@@ -141,6 +142,28 @@ export const bookTicketController = async (req: Request<{}, {}, IBook>) => {
   } catch (error: any) {
     return {
       statusCode: 400,
+      message: error.message,
+      data: null,
+    };
+  }
+};
+
+export const getBookedShowController = async (req: Request<{}, {}, IBook>) => {
+  try {
+  const {id}=(req as any).user;
+  const userId=id
+  console.log(userId);
+  
+
+    const result = await getBookedShow(userId);
+    return {
+      statusCode: statusCode.OK,
+      message: "Show fetching  Successfully",
+      data: result,
+    };
+  } catch (error: any) {
+    return {
+      statusCode: statusCode.BAD_REQUEST,
       message: error.message,
       data: null,
     };
