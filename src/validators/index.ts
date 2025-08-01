@@ -22,7 +22,7 @@ const errorFormatter = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
- export const showV = createTShowValidators(errorFormatter);
+export const showV = createTShowValidators(errorFormatter);
 export const movieV = createTMovieValidators(errorFormatter);
 export const seatV = createTSeatValidators(errorFormatter);
 export const screenV = createTScreenValidators(errorFormatter);

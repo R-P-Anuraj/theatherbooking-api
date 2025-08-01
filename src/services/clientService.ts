@@ -179,6 +179,9 @@ export const getScreenDetials = async (Data: IShow) => {
             localField: "screenId",
             foreignField: "_id",
             as: "screeninfo",
+            // pipeline:[
+            //   {$project:{screen_num:1,_id:1,description:1}}
+            // ]
           },
         },
         {
