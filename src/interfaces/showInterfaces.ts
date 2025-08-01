@@ -13,4 +13,6 @@ export interface IShow {
   getShowtime:[string]
   userId:Types.ObjectId;
   showId:Types.ObjectId
+  page: number,
+  limit: number
 }

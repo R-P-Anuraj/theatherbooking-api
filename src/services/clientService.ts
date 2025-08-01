@@ -29,63 +29,134 @@ export const getScreen = async (Data: IScreen) => {
   }
 };
 
+// export const getActiveShows = async (Data: IShow) => {
+//   try {
+//     const { theaterId } = Data;
+
+//     const result = await showModel
+//       .aggregate([
+//         {
+//           $match: {
+//             theaterId: new mongoose.Types.ObjectId(theaterId),
+//             status: "active",
+//           },
+//         },
+//         {
+//           $lookup: {
+//             from: "movies",
+//             localField: "movieId",
+//             foreignField: "_id",
+//             as: "movieinfo",
+//           },
+//         },
+//         {
+//           $unwind: "$movieinfo",
+//         },
+//         {
+//           $project: {
+//             showtime: 1,
+//             movieName: "$movieinfo.moviename",
+//             language: "$movieinfo.language",
+//             genre: "$movieinfo.genre",
+//             rating: "$movieinfo.rating",
+//             duration: "$movieinfo.duration",
+//             movieId: "$movieinfo._id",
+//             releaseDate: "$movieinfo.releaseDate",
+//             showEndDate: 1,
+//           },
+//         },
+//         {
+//           $group: {
+//             _id: "$movieId", //movie id
+//             movieId: { $first: "$movieId" },
+//             movieName: { $first: "$movieName" },
+//             language: { $first: "$language" },
+//             genre: { $first: "$genre" },
+//             rating: { $first: "$rating" },
+//             duration: { $first: "$duration" },
+//             showtimes: { $push: "$showtime" },
+//             releaseDate: { $first: "$releaseDate" },
+//             showEndDate: { $first: "$showEndDate" },
+//           },
+//         },
+//       ])
+//       .exec();
+//     return result;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 export const getActiveShows = async (Data: IShow) => {
   try {
-    const { theaterId } = Data;
+    const { theaterId ,page,limit} = Data;
+    const skip = (page - 1) * limit;
 
-    const result = await showModel
-      .aggregate([
-        {
-          $match: {
-            theaterId: new mongoose.Types.ObjectId(theaterId),
-            status: "active",
-          },
+    const result = await showModel.aggregate([
+      {
+        $match: {
+          theaterId: new mongoose.Types.ObjectId(theaterId),
+          status: "active",
         },
-        {
-          $lookup: {
-            from: "movies",
-            localField: "movieId",
-            foreignField: "_id",
-            as: "movieinfo",
-          },
+      },
+      {
+        $lookup: {
+          from: "movies",
+          localField: "movieId",
+          foreignField: "_id",
+          as: "movieinfo",
         },
-        {
-          $unwind: "$movieinfo",
+      },
+      { $unwind: "$movieinfo" },
+      {
+        $project: {
+          showtime: 1,
+          movieName: "$movieinfo.moviename",
+          language: "$movieinfo.language",
+          genre: "$movieinfo.genre",
+          rating: "$movieinfo.rating",
+          duration: "$movieinfo.duration",
+          movieId: "$movieinfo._id",
+          releaseDate: "$movieinfo.releaseDate",
+          showEndDate: 1,
         },
-        {
-          $project: {
-            showtime: 1,
-            movieName: "$movieinfo.moviename",
-            language: "$movieinfo.language",
-            genre: "$movieinfo.genre",
-            rating: "$movieinfo.rating",
-            duration: "$movieinfo.duration",
-            movieId: "$movieinfo._id",
-            releaseDate: "$movieinfo.releaseDate",
-            showEndDate: 1,
-          },
+      },
+      // {
+      //   $group: {
+      //     _id: "$movieId",
+      //     movieId: { $first: "$movieId" },
+      //     movieName: { $first: "$movieName" },
+      //     language: { $first: "$language" },
+      //     genre: { $first: "$genre" },
+      //     rating: { $first: "$rating" },
+      //     duration: { $first: "$duration" },
+      //     showtimes: { $push: "$showtime" },
+      //     releaseDate: { $first: "$releaseDate" },
+      //     showEndDate: { $first: "$showEndDate" },
+      //   },
+      // },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: skip }, { $limit: limit }],
         },
-        {
-          $group: {
-            _id: "$movieId", //movie id
-            movieId: { $first: "$movieId" },
-            movieName: { $first: "$movieName" },
-            language: { $first: "$language" },
-            genre: { $first: "$genre" },
-            rating: { $first: "$rating" },
-            duration: { $first: "$duration" },
-            showtimes: { $push: "$showtime" },
-            releaseDate: { $first: "$releaseDate" },
-            showEndDate: { $first: "$showEndDate" },
-          },
-        },
-      ])
-      .exec();
-    return result;
+      },
+    ]);
+
+    const total = result[0]?.metadata[0]?.total || 0;
+    const data = result[0]?.data || [];
+
+    return {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      data,
+    };
   } catch (error) {
     throw error;
   }
 };
+
 
 export const getScreenDetials = async (Data: IShow) => {
   try {
